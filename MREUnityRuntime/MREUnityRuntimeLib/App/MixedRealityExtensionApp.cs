@@ -305,7 +305,13 @@ namespace MixedRealityExtension.App
 
 		private void SendPhysicsUpdate()
 		{
+<<<<<<< HEAD
 			PhysicsBridgePatch physicsPatch = new PhysicsBridgePatch(InstanceId, _physicsBridge.GenerateSnapshot(UnityEngine.Time.fixedTime, SceneRoot.transform));
+=======
+			_physicsBridge._appId = InstanceId;
+
+			PhysicsBridgePatch physicsPatch = new PhysicsBridgePatch(_physicsBridge.Update(SceneRoot.transform));
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 			EventManager.QueueEvent(new PhysicsBridgeUpdated(InstanceId, physicsPatch));
 		}
 
@@ -949,7 +955,11 @@ namespace MixedRealityExtension.App
 		[CommandHandler(typeof(PhysicsBridgeUpdate))]
 		private void OnTransformsUpdate(PhysicsBridgeUpdate payload, Action onCompleteCallback)
 		{
+<<<<<<< HEAD
 			_physicsBridge.addSnapshot(payload.PhysicsBridge.Id, payload.PhysicsBridge.ToSnapshot());
+=======
+			_physicsBridge.addSnapshot(payload.PhysicsBridge.ToSnapshot());
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 			onCompleteCallback?.Invoke();
 		}
 

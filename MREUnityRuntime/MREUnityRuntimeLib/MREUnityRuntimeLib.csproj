@@ -118,7 +118,10 @@
     <Compile Include="Core\Interfaces\IUserInfo.cs" />
     <Compile Include="Core\MediaCommand.cs" />
     <Compile Include="Core\PhysicsBridge.cs" />
+<<<<<<< HEAD
     <Compile Include="Core\Physics\JitterBuffer.cs" />
+=======
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
     <Compile Include="Core\SoundManager.cs" />
     <Compile Include="Core\MediaStateOptions.cs" />
     <Compile Include="Core\Types\MWVector2.cs" />

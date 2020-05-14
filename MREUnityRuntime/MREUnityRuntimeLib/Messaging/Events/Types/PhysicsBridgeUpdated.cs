@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 using System;
+=======
+﻿using System;
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

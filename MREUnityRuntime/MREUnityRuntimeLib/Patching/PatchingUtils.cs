@@ -211,6 +211,11 @@ namespace MixedRealityExtension.Patching
 			var patch = new RigidBodyPatch()
 			{
 				// Do not include Position or Rotation in the patch.
+<<<<<<< HEAD
+=======
+				//Velocity = GeneratePatch(_old.Velocity, sceneRoot.InverseTransformDirection(_new.velocity)),
+				//AngularVelocity = GeneratePatch(_old.AngularVelocity, sceneRoot.InverseTransformDirection(_new.angularVelocity)),
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 				CollisionDetectionMode = GeneratePatch(
 					_old.CollisionDetectionMode,
 					UtilMethods.ConvertEnum<MRECollisionDetectionMode, UnityCollisionDetectionMode>(_new.collisionDetectionMode)),

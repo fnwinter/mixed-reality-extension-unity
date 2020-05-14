@@ -1,14 +1,92 @@
+<<<<<<< HEAD
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using MixedRealityExtension.Core.Physics;
 using System;
 using System.Collections.Generic;
+=======
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 
 namespace MixedRealityExtension.Core
 {
 	public class PhysicsBridge
 	{
+<<<<<<< HEAD
+=======
+		public class SnapshotBuffer
+		{
+			/// <summary>
+			/// this stores the snapshots received from all other clients, each client sends the owned updates of the actors (RBs)
+			/// </summary>
+			/// If one wants an updated for a remote body then needs to go though all these separate updates and one of the updates from one client we should find the actor ID
+			Dictionary<Guid, Snapshot> _snapshots = new Dictionary<Guid, Snapshot>();
+
+			public void addSnapshot(Snapshot snapshot)
+			{
+				// currently keep only the latest snapshot from same source
+
+				if (_snapshots.ContainsKey(snapshot.SourceAppId))
+				{
+					var oldSnapshot = _snapshots[snapshot.SourceAppId];
+
+					if (snapshot.Time > oldSnapshot.Time)
+					{
+						_snapshots[snapshot.SourceAppId] = snapshot;
+					}
+				}
+				else
+				{
+					_snapshots.Add(snapshot.SourceAppId, snapshot);
+				}
+			}
+
+			public Snapshot.SnapshotTransform getTransform(Guid rbId, out float timeOfSnapshot)
+			{
+				timeOfSnapshot = -float.MaxValue;
+				foreach (var s in _snapshots.Values)
+				{
+					foreach (var t in s.snapshotTransforms)
+					{
+						if (t.Id == rbId)
+						{
+							timeOfSnapshot = s.Time;
+							return t.sTransform;
+						}
+					}
+				}
+				return null;
+			}
+		}
+
+		public class Snapshot
+		{
+			public class SnapshotTransform
+			{
+				public UnityEngine.Vector3 Position;
+				public UnityEngine.Quaternion Rotation;
+			}
+
+			public class SnapshotTrasformInfo
+			{
+				public Guid Id;
+				public SnapshotTransform sTransform = new SnapshotTransform();
+			}
+
+			public Guid SourceAppId;
+
+			public float Time;
+
+			public List<SnapshotTrasformInfo> snapshotTransforms = new List<SnapshotTrasformInfo>();
+		}
+
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 		/// <summary>
 		/// to monitor the collisions between frames this we need to store per contact pair. 
 		/// </summary>
@@ -62,12 +140,23 @@ namespace MixedRealityExtension.Core
 			public bool IsKeyframed;
 		}
 
+<<<<<<< HEAD
 		private int _countOwnedTransforms = 0;
 		private int _countStreamedTransforms = 0;
 
 		private SortedList<Guid, RigidBodyInfo> _rigidBodies = new SortedList<Guid, RigidBodyInfo>();
 
 		TimeSnapshotManager _snapshotManager = new TimeSnapshotManager();
+=======
+		public Guid _appId;
+
+		private int _countOwnedTransforms = 0;
+		private int _countStreamedTransforms = 0;
+
+		private Dictionary<Guid, RigidBodyInfo> _rigidBodies = new Dictionary<Guid, RigidBodyInfo>();
+
+		private SnapshotBuffer _snapshotBuffer = new SnapshotBuffer();
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 
 		/// when we update a body we compute the implicit velocity. This velocity is needed, in case of collisions to switch from kinematic to kinematic=false
 		List<CollisionSwitchInfo> _switchCollisionInfos = new List<CollisionSwitchInfo>();
@@ -152,6 +241,7 @@ namespace MixedRealityExtension.Core
 
 		#region Transform Streaming
 
+<<<<<<< HEAD
 		/// <summary>
 		/// Add transform snapshot from specified source.
 		/// </summary>
@@ -160,6 +250,11 @@ namespace MixedRealityExtension.Core
 		public void addSnapshot(Guid sourceId, Snapshot snapshot)
 		{
 			_snapshotManager.addSnapshot(sourceId, snapshot);
+=======
+		public void addSnapshot(Snapshot snapshot)
+		{
+			_snapshotBuffer.addSnapshot(snapshot);
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 		}
 
 		#endregion
@@ -189,9 +284,12 @@ namespace MixedRealityExtension.Core
 			// delete all the previous collisions
 			_switchCollisionInfos.Clear();
 
+<<<<<<< HEAD
 			int index = 0;
 			MultiSourceCombinedSnapshot snapshot = _snapshotManager.GetNextSnapshot(DT);
 
+=======
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 			foreach (var rb in _rigidBodies.Values)
 			{
 				if (rb.Ownership)
@@ -208,6 +306,7 @@ namespace MixedRealityExtension.Core
 					continue;
 				}
 
+<<<<<<< HEAD
 				// Find corresponding rigid body info.
 				while (index < snapshot.RigidBodies.Count && rb.Id.CompareTo(snapshot.RigidBodies.Values[index].Id) > 0) index++;
 
@@ -222,6 +321,14 @@ namespace MixedRealityExtension.Core
 					RigidBodyTransform transform = snapshot.RigidBodies.Values[index].Transform;
 					float timeOfSnapshot = snapshot.RigidBodies.Values[index].LocalTime;
 
+=======
+				float timeOfSnapshot;
+
+				Snapshot.SnapshotTransform transform = _snapshotBuffer.getTransform(rb.Id, out timeOfSnapshot);
+
+				if (transform != null)
+				{
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 					var collisionInfo = new CollisionSwitchInfo();
 
 					collisionInfo.startPosition = rb.RigidBody.transform.position;
@@ -480,6 +587,7 @@ namespace MixedRealityExtension.Core
 
 		}
 
+<<<<<<< HEAD
 		/// <summary>
 		/// Generate rigid body transform snapshot for owned transforms with specified timestamp.
 		/// </summary>
@@ -487,11 +595,21 @@ namespace MixedRealityExtension.Core
 		/// <param name="rootTransform">Root transform.</param>
 		/// <returns>Generated snapshot.</returns>
 		public Snapshot GenerateSnapshot(float time, UnityEngine.Transform rootTransform)
+=======
+		public Snapshot Update(UnityEngine.Transform rootTransform)
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 		{
 			// collect transforms from owned rigid bodies
 			// and generate update packet/snapshot
 
+<<<<<<< HEAD
 			List<Snapshot.TransformInfo> transforms = new List<Snapshot.TransformInfo>(_rigidBodies.Count);
+=======
+			Snapshot snapshot = new Snapshot();
+			snapshot.SourceAppId = _appId;
+			snapshot.Time = UnityEngine.Time.fixedTime + UnityEngine.Time.fixedDeltaTime;
+			snapshot.snapshotTransforms.Capacity = _countOwnedTransforms;
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 
 			foreach (var rb in _rigidBodies.Values)
 			{
@@ -500,6 +618,7 @@ namespace MixedRealityExtension.Core
 					continue;
 				}
 
+<<<<<<< HEAD
 				RigidBodyTransform transform;
 				{
 					transform.Position = rootTransform.InverseTransformPoint(rb.RigidBody.transform.position);
@@ -510,6 +629,24 @@ namespace MixedRealityExtension.Core
 			}
 
 			return new Snapshot(time, transforms);
+=======
+				var ti = new Snapshot.SnapshotTrasformInfo();
+				ti.Id = rb.Id;
+
+				//Position = new Vector3Patch(App.SceneRoot.transform.InverseTransformPoint(transform.position)),
+				//Rotation = new QuaternionPatch(Quaternion.Inverse(App.SceneRoot.transform.rotation) * transform.rotation)
+
+				//ti.Transform.Position = rb.RigidBody.transform.position - rootTransform.position;
+				//ti.Transform.Rotation = UnityEngine.Quaternion.Inverse(rootTransform.rotation) * rb.RigidBody.transform.rotation;
+
+				ti.sTransform.Position = rootTransform.InverseTransformPoint(rb.RigidBody.transform.position);
+				ti.sTransform.Rotation = UnityEngine.Quaternion.Inverse(rootTransform.rotation) * rb.RigidBody.transform.rotation;
+
+				snapshot.snapshotTransforms.Add(ti);
+			}
+
+			return snapshot;
+>>>>>>> 4e7bd2fe10749d646c1ebc3b8f87df254d7d14fe
 		}
 
 		public void LateUpdate()
